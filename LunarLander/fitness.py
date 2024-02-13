@@ -76,7 +76,15 @@ class ComputeFitnessFn:
                 while not done:
                     action = controller.get_action(observation)
                     observation, reward, terminated, truncated, info = env.step(action)
-                    fitness += reward
+
+                    if observation[1] == 0 and action == 2:
+                        X = -0.3
+                    elif observation[1] == 0 and (action == 1 or action == 3):
+                        X = -3
+                    else:
+                        X = 0
+
+                    fitness += reward + X
                     done = terminated or truncated
 
         return fitness / max_rounds
