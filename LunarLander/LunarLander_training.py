@@ -15,6 +15,8 @@ import NEAT.genome_serde as gen_serde
 import NEAT.population as pop
 import NEAT.reporter as rptr
 import NEAT.individual as ind
+import NEAT.species as spc
+import NEAT.indexer as idx
 import networkx as nx
 from RNG.random import Rng
 
@@ -41,10 +43,13 @@ def run_training(
         population = pop.Population(neat_config, rng)
     else:
         gnome = gen_serde.deserialize_genome(input_pkl_file)
-        fitness: float = -np.inf
+        fitness: float = 0
         individual: ind.Individual = ind.Individual(gnome, fitness)
         individuals: List[ind.Individual] = [individual] * population_size
-        population = pop.Population(neat_config, rng, individuals)
+        species_indexer = idx.Indexer(0)
+        species_set = spc.SpeciesSet(neat_config.compatibility, species_indexer)
+        species_set.speciate(individuals, 0)
+        population = pop.Population(neat_config, rng, individuals, species_set)
 
     population.register_reporter(rptr.StatsReporter())
     population.register_reporter(
