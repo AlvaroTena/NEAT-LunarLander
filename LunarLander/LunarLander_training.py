@@ -1,5 +1,7 @@
 import argparse
 import sys
+from typing import List
+import numpy as np
 
 import gymnasium as gym
 
@@ -12,6 +14,7 @@ import NEAT.formatter as fmtr
 import NEAT.genome_serde as gen_serde
 import NEAT.population as pop
 import NEAT.reporter as rptr
+import NEAT.individual as ind
 import networkx as nx
 from RNG.random import Rng
 
@@ -22,6 +25,7 @@ def run_training(
     num_generations: int,
     best_in_generation_output_dir: str,
     fitness_output_file: str,
+    input_pkl_file: str = None
 ):
     with gym.make("LunarLander-v2") as env:
         obs_action = (env.observation_space.shape[0], env.action_space.n)
@@ -31,7 +35,16 @@ def run_training(
     )
     neat_config = cfg.NeatConfig(population_size, False)
     neat_config.genome = genome_config
-    population = pop.Population(neat_config, rng)
+    compute_fitness = fit.ComputeFitnessFn(rng)
+
+    if input_pkl_file is None:
+        population = pop.Population(neat_config, rng)
+    else:
+        gnome = gen_serde.deserialize_genome(input_pkl_file)
+        fitness: float = -np.inf
+        individual: ind.Individual = ind.Individual(gnome, fitness)
+        individuals: List[ind.Individual] = [individual] * population_size
+        population = pop.Population(neat_config, rng, individuals)
 
     population.register_reporter(rptr.StatsReporter())
     population.register_reporter(
@@ -39,7 +52,6 @@ def run_training(
     )
     population.register_reporter(rptr.FitnessFunctionReporter(fitness_output_file))
 
-    compute_fitness = fit.ComputeFitnessFn(rng)
     return population.run(compute_fitness, num_generations)
 
 
@@ -60,6 +72,11 @@ if __name__ == "__main__":
     parser.add_argument(
         "-of", "--fitness_output_file", help="File to save fitness scores."
     )
+    parser.add_argument(
+        "-i", "--input_pkl_file",
+        help="pkl file to start new training.",
+        default=None
+    )
     args = parser.parse_args()
 
     population_size = args.population_size
@@ -67,6 +84,7 @@ if __name__ == "__main__":
     output_file = args.output_file
     best_in_generation_output_dir = args.best_in_generation_output_dir
     fitness_output_file = args.fitness_output_file
+    input_pkl_file = args.input_pkl_file
 
     rng = Rng(seed_config=42)
     winner = run_training(
@@ -75,6 +93,7 @@ if __name__ == "__main__":
         num_generations,
         best_in_generation_output_dir,
         fitness_output_file,
+        input_pkl_file
     )
     gen_serde.serialize_genome(winner.genome, output_file)
     print(f"Saved winner genome at: {output_file}")
