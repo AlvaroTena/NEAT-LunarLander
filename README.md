@@ -43,6 +43,8 @@ options:
                         File to save fitness scores.
 ```
 
+Example `python LunarLander_training.py -p 50 -g 100 -o winner_gnome -og ../output -of ../output_fitness`
+
 ## Structure
 
 The project has three main modules.
