@@ -16,7 +16,7 @@ Found on [requirements.txt](./requirements.txt)
 
 ### Steps
 
-1. Download [Visual C++ Build tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
+1. For windows, download [Visual C++ Build tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
     1. Select **C++ compile applications**
 2. Create python environment `python3 -m venv .venv`
 3. Activate environment. Script is inside `source .venv/bin/activate`
@@ -28,6 +28,7 @@ Found on [requirements.txt](./requirements.txt)
 $ python LunarLander_training.py --help
 
 usage: LunarLander_training.py [-h] [-p POPULATION_SIZE] [-g NUM_GENERATIONS] [-o OUTPUT_FILE] [-og BEST_IN_GENERATION_OUTPUT_DIR] [-of FITNESS_OUTPUT_FILE]
+                               [-i INPUT_PKL_FILE]
 
 options:
   -h, --help            show this help message and exit
@@ -41,9 +42,17 @@ options:
                         Directory to save the best genome of each generation.
   -of FITNESS_OUTPUT_FILE, --fitness_output_file FITNESS_OUTPUT_FILE
                         File to save fitness scores.
+  -i INPUT_PKL_FILE, --input_pkl_file INPUT_PKL_FILE
+                        pkl file to start new training.
 ```
 
-Example `python LunarLander_training.py -p 50 -g 100 -o winner_gnome -og ../output -of ../output_fitness`
+Generate a new population from scratch
+
+* `python LunarLander_training.py -p 50 -g 100 -o winner_gnome -og ../output -of ../output_fitness`
+
+Generate new population from `pkl` file
+
+* `python LunarLander_training.py -p 50 -g 100 -o winner_gnome -og ../output -of ../output_fitness -i ./winner.pkl`
 
 ## Structure
 
